@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RCL WebSocket Test</title>
+</head>
+<body>
+    <h1>RCL WebSocket Test</h1>
+
+    <button id="connect">Connect</button>
+    <button id="send">Send test message</button>
+
+    <pre id="log"></pre>
+
+    <script>
+        const log = document.getElementById("log");
+
+        function write(message) {
+            log.textContent += message + "\n";
+        }
+
+        let ws;
+
+        document.getElementById("connect").onclick = () => {
+            write("Connecting...");
+
+            ws = new WebSocket(
+                "wss://rcl-server.vercel.app/api/ws"
+            );
+
+            ws.onopen = () => {
+                write("✅ CONNECTED");
+            };
+
+            ws.onmessage = (event) => {
+                write("📨 SERVER: " + event.data);
+            };
+
+            ws.onerror = () => {
+                write("❌ ERROR");
+            };
+
+            ws.onclose = (event) => {
+                write(
+                    "🔌 CLOSED: " +
+                    event.code +
+                    " " +
+                    event.reason
+                );
+            };
+        };
+
+        document.getElementById("send").onclick = () => {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                write("⚠️ WebSocket is not connected");
+                return;
+            }
+
+            ws.send("Hello from RCL test");
+            write("📤 SENT: Hello from RCL test");
+        };
+    </script>
+</body>
+</html>
